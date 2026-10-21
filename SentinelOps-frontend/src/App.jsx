@@ -11,7 +11,7 @@ function App() {
         </h1>
 
         <p className="mt-4 text-slate-400">
-          React, JavaScript and Tailwind CSS are ready.
+          JavaScript and Tailwind CSS are ready.
         </p>
 
         <button className="mt-6 rounded-lg bg-cyan-500 px-5 py-3 font-semibold text-slate-950 hover:bg-cyan-400">
