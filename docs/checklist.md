@@ -12,13 +12,13 @@
 
 ### Stage 1 — Planning and System Design
 
-- [ ] 1\. Define the requirements and scope of SentinelOps.
-- [ ] 2\. Identify users, roles, and their permissions.
-- [ ] 3\. Design the high-level architecture using diagrams.net.
-- [ ] 4\. Design the database ER diagram.
-- [ ] 5\. Design REST API contracts using OpenAPI.
-- [ ] 6\. Define incident priorities (P1–P4), incident lifecycle, and anomaly detection rules.
-- [ ] 7\. Decide the initial modular monolith architecture and document important design decisions.
+- [x] 1\. Define the requirements and scope of SentinelOps.
+- [x] 2\. Identify users, roles, and their permissions.
+- [x] 3\. Design the high-level architecture.
+- [x] 4\. Design the database ER diagram.
+- [x] 5\. Design REST API contracts using OpenAPI.
+- [x] 6\. Define incident priorities (P1–P4), incident lifecycle, and anomaly detection rules.
+- [x] 7\. Decide the initial modular monolith architecture and document important design decisions.
 
 ### Stage 2 — Frontend Project Setup
 - [ ] FE-1. Set up Node.js, npm, VS Code, and the React + Vite JavaScript project.

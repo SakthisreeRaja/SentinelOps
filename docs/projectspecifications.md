@@ -22,7 +22,89 @@ Build a runnable, production-style prototype that:
 6. Records incident history, operator feedback, remediation outcomes, and audit events.
 7. Exposes the complete workflow through REST APIs and an interactive observability dashboard.
 
-## III. Core Functional Requirements
+## III. Users, Roles, and Permissions
+
+SentinelOps supports three primary user categories: Operator, Administrator, and System / Telemetry Producer. Each category is assigned permissions according to its responsibilities. Access control must prevent unauthorized incident modifications, configuration changes, and remediation actions.
+
+### 1. Operator
+
+The Operator is responsible for monitoring incidents, investigating problems, coordinating resolution, and providing feedback.
+
+**Permissions:**
+
+- View current and historical incidents, metrics, anomaly scores, and supporting evidence.
+- Filter, sort, and paginate incident records.
+- Acknowledge incidents and update their status through permitted lifecycle transitions.
+- Assign incidents to authorized operators and add investigation comments.
+- Request AI-assisted investigation and view summaries, likely causes, and runbook recommendations.
+- Submit true-positive or false-positive feedback with an optional explanation.
+- Request and approve permitted simulated remediation actions, subject to authorization, approval policies, and precondition checks.
+- View remediation execution results, incident history, and relevant audit records.
+- Resolve incidents and record resolution details when the required conditions are satisfied.
+
+### 2. Administrator
+
+The Administrator is responsible for configuring and maintaining the SentinelOps platform, managing access, and controlling operational policies.
+
+**Permissions:**
+
+- Manage user accounts, roles, and access permissions.
+- Register and configure application services and their criticality levels.
+- Configure anomaly detection thresholds, baselines, and related detection rules.
+- Configure service dependencies and other settings required for event correlation.
+- Manage runbooks and their associated diagnostic procedures.
+- Configure remediation allowlists and approval policies.
+- Configure applicable telemetry retention and platform settings.
+- Inspect system health, operational metrics, and audit records.
+- Review incident and remediation activity for operational oversight.
+
+Administrative access does not automatically authorize the execution or approval of every remediation action. Remediation permissions must be explicitly granted according to the applicable authorization and approval policies.
+
+### 3. System / Telemetry Producer
+
+The System / Telemetry Producer is a machine identity representing the synthetic telemetry generator or another authorized telemetry-producing component. It is not necessarily a human user.
+
+**Permissions:**
+
+- Authenticate with the telemetry ingestion API using an approved machine-authentication mechanism.
+- Submit telemetry events containing the required metrics, logs, timestamps, service identifiers, trace identifiers, and optional business KPIs.
+- Receive ingestion acknowledgments and validation errors.
+- Retry failed submissions according to the supported retry policy.
+- Submit events only for authorized service identities and within the configured ingestion limits.
+
+The System / Telemetry Producer must not modify incidents, manage users, change platform configuration, access administrative functions, or approve and execute remediation actions.
+
+### 4. Permission Matrix
+
+| Capability | Operator | Administrator | System / Telemetry Producer |
+|---|---|---|---|
+| Submit telemetry | No | No, unless separately authorized | Yes |
+| View metrics and incidents | Yes | Yes, for administration and oversight | No general access |
+| Acknowledge and assign incidents | Yes | Only if separately authorized or assigned the relevant role | No |
+| Add comments and submit feedback | Yes | Only if separately authorized | No |
+| Request AI investigation | Yes | Only if separately authorized | No |
+| Manage users and roles | No | Yes | No |
+| Configure services and detection rules | No | Yes | No |
+| Manage runbooks and remediation policies | No | Yes | No |
+| Request remediation | Yes, subject to policy | Only if separately authorized | No |
+| Approve remediation | Only when explicitly authorized | Only when explicitly authorized | No |
+| Execute simulated remediation | Through the authorized backend workflow; no direct execution access | Through the authorized backend workflow; no direct execution access | No |
+| View audit records | Relevant operational records | Authorized administrative audit records | No general access |
+
+### 5. Authentication and Authorization Rules
+
+1. Human users must authenticate before accessing protected operator or administrative functionality. The backend will use Spring Security and JSON Web Tokens (JWT) to authenticate users and enforce role-based access control.
+2. Telemetry producers must authenticate as authorized machine identities. Their credentials and permissions must be separate from human user accounts.
+3. The backend must enforce authorization on every protected API endpoint. Hiding a dashboard button is not sufficient to prevent unauthorized operations.
+4. Role checks must be supplemented with resource-level and policy checks where required. For example, an operator must not approve a remediation action unless they are authorized for that action and all applicable approval conditions are satisfied.
+5. Incident lifecycle transitions must be validated by the backend. Users cannot bypass legal transitions by directly submitting arbitrary status values.
+6. Remediation requests must pass authorization, approval, allowlist, precondition, and idempotency checks before execution.
+7. Administrative configuration changes, incident state changes, approval decisions, and remediation attempts must be recorded in the audit trail, with the actor, operation, target, timestamp, and outcome where applicable.
+8. The system must follow the principle of least privilege: every user or machine identity receives only the permissions necessary for its assigned responsibilities.
+
+These permissions define the initial authorization model. Additional roles or finer-grained permissions may be introduced if the implementation demonstrates a genuine need for them.
+
+## IV. Core Functional Requirements
 
 ### 1. Telemetry Ingestion
 
@@ -48,7 +130,7 @@ Support allowlisted simulated actions such as restarting a dummy worker or rolli
 
 Display current metrics, anomaly scores, historical incidents, P1–P4 priorities, AI insights, feedback, and remediation status.
 
-## IV. Technical Requirements
+## V. Technical Requirements
 
 The primary backend must use Java and Spring Boot, with PostgreSQL as the system of record. The implementation should demonstrate REST API design, DTO validation, exception handling, database transactions, indexing, Spring Security with JWT, automated testing, and deployment using Docker Compose.
 
@@ -58,7 +140,7 @@ Implement application metrics, structured logging, health checks, and distribute
 
 Integrate AI through a provider-independent interface with timeout handling, structured output validation, runbook retrieval, and a fallback when the AI provider is unavailable.
 
-## V. Definition of Done
+## VI. Definition of Done
 
 The project is complete when:
 
@@ -73,7 +155,7 @@ The project is complete when:
 
 All development and demonstrations must use synthetic data and must not require production credentials or real customer data.
 
-## VI. Expected Outcome
+## VII. Expected Outcome
 
 Deliver a working, documented AI-powered observability prototype that demonstrates backend engineering beyond basic CRUD APIs. The solution must show sound database design, API contracts, transaction and concurrency handling, asynchronous processing, failure recovery, security, testing, observability, and defensible system architecture decisions.
 
